@@ -1,5 +1,6 @@
 using StockSmart.Data;
 using StockSmart.Repositories;
+using StockSmart.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +11,9 @@ builder.Services.AddRazorPages();
 builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<SupplierRepository>();
 builder.Services.AddScoped<ProductRepository>();
+
+// Services: business logic that sits between the pages and the repositories.
+builder.Services.AddScoped<AuthService>();
 
 var app = builder.Build();
 
