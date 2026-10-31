@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using StockSmart.Data;
 using StockSmart.Repositories;
 using StockSmart.Services;
@@ -5,7 +6,26 @@ using StockSmart.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddRazorPages();
+// Every page needs a logged-in user, except Login, Error and Privacy.
+builder.Services.AddRazorPages(options =>
+{
+    options.Conventions.AuthorizeFolder("/");
+    options.Conventions.AllowAnonymousToPage("/Login");
+    options.Conventions.AllowAnonymousToPage("/Error");
+    options.Conventions.AllowAnonymousToPage("/Privacy");
+});
+
+// Cookie login (FR1.1): logged-out users are sent to /Login.
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Login";
+        options.LogoutPath = "/Logout";
+        options.AccessDeniedPath = "/Login";
+        options.ExpireTimeSpan = TimeSpan.FromHours(8);   // One working day
+        options.SlidingExpiration = true;
+        options.Cookie.HttpOnly = true;                   // JavaScript can't read the cookie
+    });
 
 // Repositories: one new instance per web request.
 builder.Services.AddScoped<UserRepository>();
@@ -35,7 +55,8 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-app.UseAuthorization();
+app.UseAuthentication();   // Who is this user? (reads the login cookie)
+app.UseAuthorization();    // Are they allowed on this page?
 
 app.MapRazorPages();
 

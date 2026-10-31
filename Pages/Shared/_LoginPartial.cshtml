@@ -1,0 +1,18 @@
+@using System.Security.Claims
+
+@if (User.Identity?.IsAuthenticated == true)
+{
+    <ul class="navbar-nav">
+        <li class="nav-item">
+            <span class="navbar-text text-dark me-3">
+                @User.Identity.Name
+                <span class="badge bg-secondary ms-1">@User.FindFirstValue(ClaimTypes.Role)</span>
+            </span>
+        </li>
+        <li class="nav-item">
+            <form method="post" asp-page="/Logout" class="d-inline">
+                <button type="submit" class="btn btn-outline-secondary btn-sm mt-1">Log out</button>
+            </form>
+        </li>
+    </ul>
+}
