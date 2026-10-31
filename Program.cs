@@ -1,9 +1,15 @@
 using StockSmart.Data;
+using StockSmart.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
+
+// Repositories: one new instance per web request.
+builder.Services.AddScoped<UserRepository>();
+builder.Services.AddScoped<SupplierRepository>();
+builder.Services.AddScoped<ProductRepository>();
 
 var app = builder.Build();
 
