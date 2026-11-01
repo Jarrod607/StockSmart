@@ -13,6 +13,10 @@
 {
     <div class="alert alert-success" role="alert">@Model.StatusMessage</div>
 }
+@if (!string.IsNullOrEmpty(Model.WarningMessage))
+{
+    <div class="alert alert-warning" role="alert">@Model.WarningMessage</div>
+}
 @if (!string.IsNullOrEmpty(Model.ErrorMessage))
 {
     <div class="alert alert-danger" role="alert">@Model.ErrorMessage</div>
@@ -24,6 +28,7 @@
             <th>Username</th>
             <th>Role</th>
             <th>Status</th>
+            <th class="text-end">Actions</th>
         </tr>
     </thead>
     <tbody>
@@ -32,7 +37,7 @@
             <tr>
                 <td>
                     @u.Username
-                    @if (u.Username == User.Identity?.Name)
+                    @if (u.UserId == Model.CurrentUserId)
                     {
                         <span class="text-muted">(you)</span>
                     }
@@ -47,6 +52,31 @@
                     {
                         <span class="badge bg-secondary">Deactivated</span>
                     }
+                </td>
+                <td class="text-end">
+                    @if (u.UserId == Model.CurrentUserId)
+                    {
+                        <span class="text-muted small me-2">Your account</span>
+                    }
+                    else
+                    {
+                        <form method="post" asp-page-handler="SetActive"
+                              asp-route-id="@u.UserId" asp-route-active="@(!u.IsActive)" class="d-inline">
+                            @if (u.IsActive)
+                            {
+                                <button type="submit" class="btn btn-sm btn-outline-danger"
+                                        onclick="return confirm('Deactivate @u.Username? They will no longer be able to log in.');">
+                                    Deactivate
+                                </button>
+                            }
+                            else
+                            {
+                                <button type="submit" class="btn btn-sm btn-outline-success">Reactivate</button>
+                            }
+                        </form>
+                    }
+                    <a asp-page="/Users/ResetPassword" asp-route-id="@u.UserId"
+                       class="btn btn-sm btn-outline-secondary ms-1">Reset password</a>
                 </td>
             </tr>
         }
