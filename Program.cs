@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using StockSmart.Data;
+using StockSmart.Models;
 using StockSmart.Repositories;
 using StockSmart.Services;
 
@@ -7,25 +8,34 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 // Every page needs a logged-in user, except Login, Error and Privacy.
+// User management is for the Manager only (FR1.3, NFR1).
 builder.Services.AddRazorPages(options =>
 {
     options.Conventions.AuthorizeFolder("/");
+    options.Conventions.AuthorizeFolder("/Users", "ManagerOnly");
     options.Conventions.AllowAnonymousToPage("/Login");
     options.Conventions.AllowAnonymousToPage("/Error");
     options.Conventions.AllowAnonymousToPage("/Privacy");
 });
 
-// Cookie login (FR1.1): logged-out users are sent to /Login.
+// Cookie login (FR1.1): logged-out users go to /Login,
+// logged-in users without the right role go to /AccessDenied.
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
         options.LoginPath = "/Login";
         options.LogoutPath = "/Logout";
-        options.AccessDeniedPath = "/Login";
+        options.AccessDeniedPath = "/AccessDenied";
         options.ExpireTimeSpan = TimeSpan.FromHours(8);   // One working day
         options.SlidingExpiration = true;
         options.Cookie.HttpOnly = true;                   // JavaScript can't read the cookie
     });
+
+// Role-based access rules (NFR1).
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("ManagerOnly", policy => policy.RequireRole(UserRoles.Manager));
+});
 
 // Repositories: one new instance per web request.
 builder.Services.AddScoped<UserRepository>();

@@ -1,0 +1,12 @@
+@page
+@model StockSmart.Pages.AccessDeniedModel
+@{
+    ViewData["Title"] = "Access denied";
+}
+
+<div class="alert alert-warning mt-4" role="alert">
+    <h4 class="alert-heading">Access denied</h4>
+    <p>Your role (<strong>@Model.Role</strong>) does not have permission to open this page.</p>
+    <hr />
+    <a asp-page="/Index" class="btn btn-primary">Back to Home</a>
+</div>
