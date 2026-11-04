@@ -26,7 +26,9 @@ public class IndexModel : PageModel
     /// <summary>Search text from the URL (?search=...). Matches name or category.</summary>
     [BindProperty(SupportsGet = true)]
     public string? Search { get; set; }
-
+/// <summary>Manager only: include deactivated products (?showInactive=true).</summary>
+    [BindProperty(SupportsGet = true)]
+    public bool ShowInactive { get; set; }
     public List<Product> ProductList { get; private set; } = new();
     public string? ErrorMessage { get; private set; }
     public bool IsSearching => !string.IsNullOrWhiteSpace(Search);
@@ -48,8 +50,13 @@ public class IndexModel : PageModel
                 Search = term;
                 ProductList = await _productRepository.SearchAsync(term);   // parameterised (NFR1)
             }
+                        else if (ShowInactive && User.IsInRole(UserRoles.Manager))
+            {
+                ProductList = await _productRepository.GetAllIncludingInactiveAsync();
+            }
             else
             {
+                ShowInactive = false;   // Staff can't see inactive products, even via the URL (NFR1).
                 ProductList = await _productRepository.GetAllAsync();
             }
 

@@ -13,6 +13,7 @@
         <a class="btn btn-primary" href="/Products/Add">Add product</a>
     }
 </div>
+
 @if (TempData["Message"] is string message)
 {
     <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -32,6 +33,18 @@
         @if (Model.IsSearching)
         {
             <a class="btn btn-link" href="/Products">Clear</a>
+        }
+        else if (isManager)
+        {
+            @* Manager only: find deactivated products to reactivate them (FR2.1). *@
+            @if (Model.ShowInactive)
+            {
+                <a class="btn btn-link" href="/Products">Hide inactive</a>
+            }
+            else
+            {
+                <a class="btn btn-link" href="/Products?showInactive=true">Show inactive</a>
+            }
         }
     </div>
 </form>
@@ -71,16 +84,20 @@ else
         <tbody>
             @foreach (var p in Model.ProductList)
             {
-                <tr>
+                <tr class="@(p.IsActive ? "" : "text-muted")">
                     <td>@p.Name</td>
                     <td>@(p.Category ?? "—")</td>
                     <td>@Model.SupplierName(p.SupplierId)</td>
                     <td class="text-end">R @p.Price.ToString("0.00")</td>
                     <td class="text-end">@p.Quantity</td>
                     <td class="text-end">@p.ReorderLevel</td>
-                                        <td>
-                        @* Low stock when quantity <= reorder level (FR2, groundwork for FR6). *@
-                        @if (p.IsLowStock)
+                    <td>
+                        @* Inactive first; otherwise low stock when quantity <= reorder level (FR2, groundwork for FR6). *@
+                        @if (!p.IsActive)
+                        {
+                            <span class="badge bg-secondary">Inactive</span>
+                        }
+                        else if (p.IsLowStock)
                         {
                             <span class="badge bg-warning text-dark">Low stock</span>
                         }

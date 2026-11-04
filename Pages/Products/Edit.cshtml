@@ -60,4 +60,24 @@
 
     <button type="submit" class="btn btn-primary">Save changes</button>
     <a href="/Products" class="btn btn-link">Cancel</a>
-</form>
+</form>@* Deactivate / reactivate (FR2.1). A separate form, so it can't be mixed up with Save. *@
+<div class="col-md-8 col-lg-6 mt-5 pt-3 border-top">
+    <h2 class="h5">Status</h2>
+    @if (Model.IsActive)
+    {
+        <p class="text-muted small">
+            A deactivated product is hidden from the product list, but past sales stay linked to it.
+            You can reactivate it at any time.
+        </p>
+        <form method="post" asp-page-handler="ToggleActive" asp-route-id="@Model.ProductId">
+            <button type="submit" class="btn btn-outline-danger">Deactivate product</button>
+        </form>
+    }
+    else
+    {
+        <p class="text-muted small">This product is inactive and hidden from the product list.</p>
+        <form method="post" asp-page-handler="ToggleActive" asp-route-id="@Model.ProductId">
+            <button type="submit" class="btn btn-outline-success">Reactivate product</button>
+        </form>
+    }
+</div>

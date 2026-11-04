@@ -103,6 +103,39 @@ public class EditModel : PageModel
         }
     }
 
+    /// <summary>
+    /// Deactivates an active product, or reactivates an inactive one (FR2.1).
+    /// Nothing is deleted, so past sales stay linked.
+    /// </summary>
+    public async Task<IActionResult> OnPostToggleActiveAsync(int id)
+    {
+        try
+        {
+            var product = await _productRepository.GetByIdAsync(id);
+            if (product == null)
+            {
+                return NotFound();
+            }
+
+            bool makeActive = !product.IsActive;
+            await _productRepository.SetActiveAsync(id, makeActive);
+
+            _logger.LogInformation("Product {ProductId} '{Name}' {Action} by {User}.",
+                id, product.Name, makeActive ? "reactivated" : "deactivated", User.Identity?.Name);
+
+            TempData["Message"] = makeActive
+                ? $"Product \"{product.Name}\" was reactivated."
+                : $"Product \"{product.Name}\" was deactivated. Use \"Show inactive\" to find it again.";
+            return RedirectToPage("Index");
+        }
+        catch (DatabaseException ex)
+        {
+            _logger.LogError(ex, "Changing the status of product {ProductId} failed.", id);
+            var result = await OnGetAsync(id);
+            ErrorMessage = "The product's status could not be changed. Please try again.";
+            return result;
+        }
+    }
     private async Task LoadSuppliersAsync()
     {
         try
