@@ -45,6 +45,7 @@ builder.Services.AddScoped<ProductRepository>();
 builder.Services.AddScoped<SaleRepository>();
 // Services: business logic that sits between the pages and the repositories.
 builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<SaleService>();
 
 var app = builder.Build();
 
