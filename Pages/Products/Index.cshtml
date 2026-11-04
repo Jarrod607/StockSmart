@@ -54,6 +54,7 @@ else
                 <th class="text-end">Price</th>
                 <th class="text-end">Quantity</th>
                 <th class="text-end">Reorder level</th>
+                <th>Status</th>
                 @if (isManager)
                 {
                     <th></th>
@@ -70,6 +71,17 @@ else
                     <td class="text-end">R @p.Price.ToString("0.00")</td>
                     <td class="text-end">@p.Quantity</td>
                     <td class="text-end">@p.ReorderLevel</td>
+                                        <td>
+                        @* Low stock when quantity <= reorder level (FR2, groundwork for FR6). *@
+                        @if (p.IsLowStock)
+                        {
+                            <span class="badge bg-warning text-dark">Low stock</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-success">In stock</span>
+                        }
+                    </td>
                     @if (isManager)
                     {
                         <td class="text-end">
