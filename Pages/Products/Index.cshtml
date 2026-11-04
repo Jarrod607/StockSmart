@@ -13,6 +13,13 @@
         <a class="btn btn-primary" href="/Products/Add">Add product</a>
     }
 </div>
+@if (TempData["Message"] is string message)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @message
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
 
 @* Search by name or category (FR2.2). GET, so the search shows in the address bar. *@
 <form method="get" class="row g-2 mb-3">
