@@ -42,7 +42,7 @@ builder.Services.AddAuthorization(options =>
 builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<SupplierRepository>();
 builder.Services.AddScoped<ProductRepository>();
-
+builder.Services.AddScoped<SaleRepository>();
 // Services: business logic that sits between the pages and the repositories.
 builder.Services.AddScoped<AuthService>();
 
