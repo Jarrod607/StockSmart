@@ -1,0 +1,63 @@
+@page
+@model StockSmart.Pages.Products.EditModel
+@{
+    ViewData["Title"] = "Edit product";
+}
+
+<h1 class="h3 mb-1">Edit product</h1>
+<p class="text-muted mb-3">
+    @Model.OriginalName
+    @if (!Model.IsActive)
+    {
+        <span class="badge bg-secondary ms-1">Inactive</span>
+    }
+</p>
+
+@if (Model.ErrorMessage != null)
+{
+    <div class="alert alert-danger">@Model.ErrorMessage</div>
+}
+
+@* Posts back to the same address, so ?id= is kept. The server checks every rule. *@
+<form method="post" class="col-md-8 col-lg-6" novalidate>
+    <div class="mb-3">
+        <label asp-for="Input.Name" class="form-label"></label>
+        <input asp-for="Input.Name" class="form-control" maxlength="100" />
+        <span asp-validation-for="Input.Name" class="text-danger small"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Input.Category" class="form-label"></label>
+        <input asp-for="Input.Category" class="form-control" maxlength="50" placeholder="e.g. Stationery" />
+        <span asp-validation-for="Input.Category" class="text-danger small"></span>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-4 mb-3">
+            <label asp-for="Input.Price" class="form-label"></label>
+            <input asp-for="Input.Price" class="form-control" placeholder="0.00" />
+            <span asp-validation-for="Input.Price" class="text-danger small"></span>
+        </div>
+        <div class="col-sm-4 mb-3">
+            <label asp-for="Input.Quantity" class="form-label"></label>
+            <input asp-for="Input.Quantity" class="form-control" />
+            <span asp-validation-for="Input.Quantity" class="text-danger small"></span>
+        </div>
+        <div class="col-sm-4 mb-3">
+            <label asp-for="Input.ReorderLevel" class="form-label"></label>
+            <input asp-for="Input.ReorderLevel" class="form-control" />
+            <span asp-validation-for="Input.ReorderLevel" class="text-danger small"></span>
+        </div>
+    </div>
+
+    <div class="mb-4">
+        <label asp-for="Input.SupplierId" class="form-label"></label>
+        <select asp-for="Input.SupplierId" asp-items="Model.SupplierOptions" class="form-select">
+            <option value="">-- Choose a supplier --</option>
+        </select>
+        <span asp-validation-for="Input.SupplierId" class="text-danger small"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save changes</button>
+    <a href="/Products" class="btn btn-link">Cancel</a>
+</form>
