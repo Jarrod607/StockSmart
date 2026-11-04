@@ -6,13 +6,14 @@ using StockSmart.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 // Every page needs a logged-in user, except Login, Error and Privacy.
-// User management is for the Manager only (FR1.3, NFR1).
+// User management and product editing are for the Manager only (FR1.3, FR2.1, NFR1).
 builder.Services.AddRazorPages(options =>
 {
     options.Conventions.AuthorizeFolder("/");
     options.Conventions.AuthorizeFolder("/Users", "ManagerOnly");
+    options.Conventions.AuthorizePage("/Products/Add", "ManagerOnly");    // FR2.1, NFR1
+    options.Conventions.AuthorizePage("/Products/Edit", "ManagerOnly");   // FR2.1, NFR1
     options.Conventions.AllowAnonymousToPage("/Login");
     options.Conventions.AllowAnonymousToPage("/Error");
     options.Conventions.AllowAnonymousToPage("/Privacy");
