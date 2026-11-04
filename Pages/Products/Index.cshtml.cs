@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using StockSmart.Exceptions;
 using StockSmart.Models;
@@ -6,11 +7,13 @@ using StockSmart.Repositories;
 namespace StockSmart.Pages.Products;
 
 /// <summary>
-/// Product list (FR2). Every logged-in user can view it;
+/// Product list with search (FR2, FR2.2). Every logged-in user can view it;
 /// only the Manager sees the Add and Edit buttons (NFR1).
 /// </summary>
 public class IndexModel : PageModel
 {
+    private const int MaxSearchLength = 100;
+
     private readonly ProductRepository _productRepository;
     private readonly SupplierRepository _supplierRepository;
 
@@ -20,8 +23,13 @@ public class IndexModel : PageModel
         _supplierRepository = supplierRepository;
     }
 
+    /// <summary>Search text from the URL (?search=...). Matches name or category.</summary>
+    [BindProperty(SupportsGet = true)]
+    public string? Search { get; set; }
+
     public List<Product> ProductList { get; private set; } = new();
     public string? ErrorMessage { get; private set; }
+    public bool IsSearching => !string.IsNullOrWhiteSpace(Search);
 
     // SupplierId -> supplier name, so each row can show who supplies it.
     private Dictionary<int, string> _supplierNames = new();
@@ -30,7 +38,21 @@ public class IndexModel : PageModel
     {
         try
         {
-            ProductList = await _productRepository.GetAllAsync();
+            if (IsSearching)
+            {
+                string term = Search!.Trim();
+                if (term.Length > MaxSearchLength)
+                {
+                    term = term.Substring(0, MaxSearchLength);
+                }
+                Search = term;
+                ProductList = await _productRepository.SearchAsync(term);   // parameterised (NFR1)
+            }
+            else
+            {
+                ProductList = await _productRepository.GetAllAsync();
+            }
+
             var suppliers = await _supplierRepository.GetAllAsync();
             _supplierNames = suppliers.ToDictionary(s => s.SupplierId, s => s.Name);
         }

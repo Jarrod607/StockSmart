@@ -14,16 +14,37 @@
     }
 </div>
 
+@* Search by name or category (FR2.2). GET, so the search shows in the address bar. *@
+<form method="get" class="row g-2 mb-3">
+    <div class="col-sm-6 col-md-5">
+        <input type="search" name="search" value="@Model.Search" maxlength="100"
+               class="form-control" placeholder="Search by name or category" aria-label="Search products" />
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-outline-primary">Search</button>
+        @if (Model.IsSearching)
+        {
+            <a class="btn btn-link" href="/Products">Clear</a>
+        }
+    </div>
+</form>
+
 @if (Model.ErrorMessage != null)
 {
     <div class="alert alert-danger">@Model.ErrorMessage</div>
 }
 else if (!Model.ProductList.Any())
 {
-    <p class="text-muted">No products found.</p>
+    <p class="text-muted">
+        @(Model.IsSearching ? $"No products match \"{Model.Search}\"." : "No products found.")
+    </p>
 }
 else
 {
+    @if (Model.IsSearching)
+    {
+        <p class="text-muted small">@Model.ProductList.Count result(s) for "@Model.Search"</p>
+    }
     <table class="table table-striped table-hover align-middle">
         <thead>
             <tr>
