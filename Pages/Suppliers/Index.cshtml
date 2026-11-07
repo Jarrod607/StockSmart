@@ -1,0 +1,53 @@
+@page
+@model StockSmart.Pages.Suppliers.IndexModel
+@{
+    ViewData["Title"] = "Suppliers";
+    var isManager = User.IsInRole("Manager");
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">Suppliers</h1>
+    @if (isManager)
+    {
+        <a asp-page="Add" class="btn btn-primary">Add supplier</a>
+    }
+</div>
+
+@if (Model.Message != null)
+{
+    <div class="alert alert-success">@Model.Message</div>
+}
+@if (Model.ErrorMessage != null)
+{
+    <div class="alert alert-danger">@Model.ErrorMessage</div>
+}
+
+<table class="table table-striped align-middle">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Phone</th>
+            <th>Email</th>
+            <th class="text-end">Active products</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var s in Model.SupplierList)
+        {
+            <tr>
+                <td>@s.Name</td>
+                <td>@(s.Phone ?? "—")</td>
+                <td>@(s.Email ?? "—")</td>
+                <td class="text-end">@Model.CountFor(s.SupplierId)</td>
+                <td class="text-end text-nowrap">
+                    <a asp-page="Details" asp-route-id="@s.SupplierId" class="btn btn-sm btn-outline-primary">Products</a>
+                    @if (isManager)
+                    {
+                        <a asp-page="Edit" asp-route-id="@s.SupplierId" class="btn btn-sm btn-outline-secondary">Edit</a>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
