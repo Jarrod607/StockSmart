@@ -1,0 +1,140 @@
+@page
+@model StockSmart.Pages.Sales.NewModel
+@{
+    ViewData["Title"] = "New Sale";
+    var errors = ViewData.ModelState[string.Empty]?.Errors;
+}
+
+<h1 class="h3 mb-3">New Sale</h1>
+
+@if (Model.LastReceipt is { } receipt)
+{
+    <div class="card border-success mb-4" style="max-width: 42rem;">
+        <div class="card-header bg-success text-white">Sale #@receipt.SaleId saved</div>
+        <div class="card-body">
+            <p class="small text-muted mb-2">
+                @receipt.SaleDate.ToString("dd MMM yyyy, HH:mm") · Sold by @receipt.SoldBy · Saved in @receipt.ElapsedMs ms
+            </p>
+            <table class="table table-sm mb-0">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th class="text-end">Qty</th>
+                        <th class="text-end">Unit price</th>
+                        <th class="text-end">Line total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var line in receipt.Lines)
+                    {
+                        <tr>
+                            <td>@line.Product</td>
+                            <td class="text-end">@line.Quantity</td>
+                            <td class="text-end">@Model.Rand(line.UnitPrice)</td>
+                            <td class="text-end">@Model.Rand(line.LineTotal)</td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th colspan="3" class="text-end">Total</th>
+                        <th class="text-end">@Model.Rand(receipt.Total)</th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+}
+
+@if (errors is { Count: > 0 })
+{
+    <div class="alert alert-danger">
+        @foreach (var error in errors)
+        {
+            <div>@error.ErrorMessage</div>
+        }
+    </div>
+}
+
+<form method="post">
+    <table class="table align-middle" id="sale-lines">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th style="width: 8rem;">Quantity</th>
+                <th class="text-end" style="width: 9rem;">Line total</th>
+                <th style="width: 3rem;"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (var i = 0; i < Model.Lines.Count; i++)
+            {
+                <tr>
+                    <td>
+                        <select asp-for="Lines[i].ProductId" class="form-select line-product">
+                            <option value="0">-- Choose a product --</option>
+                            @foreach (var p in Model.Products)
+                            {
+                                <option value="@p.ProductId"
+                                        data-price="@p.Price.ToString(System.Globalization.CultureInfo.InvariantCulture)">
+                                    @p.Name · @Model.Rand(p.Price) · @p.Quantity in stock
+                                </option>
+                            }
+                        </select>
+                    </td>
+                    <td>
+                        <input asp-for="Lines[i].Quantity" type="number" min="1" class="form-control line-qty" />
+                    </td>
+                    <td class="text-end line-total">@Model.Rand(Model.LineTotal(Model.Lines[i]))</td>
+                    <td>
+                        <button type="submit" asp-page-handler="RemoveLine" asp-route-index="@i" formnovalidate
+                                class="btn btn-sm btn-outline-danger" title="Remove this line">&times;</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr>
+                <th colspan="2" class="text-end">Total</th>
+                <th class="text-end" id="running-total">@Model.Rand(Model.RunningTotal)</th>
+                <th></th>
+            </tr>
+        </tfoot>
+    </table>
+
+    <div class="d-flex gap-2">
+        <button type="submit" asp-page-handler="AddLine" formnovalidate class="btn btn-outline-secondary">+ Add line</button>
+        <button type="submit" asp-page-handler="Save" class="btn btn-primary">Save sale</button>
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        // Live running total (display only; the server recalculates on save).
+        (function () {
+            const table = document.getElementById('sale-lines');
+            const money = n => 'R' + n.toFixed(2);
+
+            function recalc() {
+                let total = 0;
+                table.querySelectorAll('tbody tr').forEach(row => {
+                    const option = row.querySelector('.line-product').selectedOptions[0];
+                    const price = parseFloat(option?.dataset.price || '0');
+                    const qty = parseInt(row.querySelector('.line-qty').value, 10) || 0;
+                    const line = price * qty;
+                    row.querySelector('.line-total').textContent = money(line);
+                    total += line;
+                });
+                document.getElementById('running-total').textContent = money(total);
+            }
+
+            table.addEventListener('input', recalc);
+            table.addEventListener('change', recalc);
+
+            // Stop Enter in a field from triggering the first button (Remove line).
+            table.addEventListener('keydown', e => {
+                if (e.key === 'Enter') { e.preventDefault(); recalc(); }
+            });
+        })();
+    </script>
+}
