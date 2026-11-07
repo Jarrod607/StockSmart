@@ -14,7 +14,8 @@ builder.Services.AddRazorPages(options =>
     options.Conventions.AuthorizeFolder("/Users", "ManagerOnly");
     options.Conventions.AuthorizePage("/Products/Add", "ManagerOnly");    // FR2.1, NFR1
     options.Conventions.AuthorizePage("/Products/Edit", "ManagerOnly");   // FR2.1, NFR1
-
+    options.Conventions.AuthorizePage("/Suppliers/Add", "ManagerOnly");
+    options.Conventions.AuthorizePage("/Suppliers/Edit", "ManagerOnly");
     options.Conventions.AllowAnonymousToPage("/Login");
     options.Conventions.AllowAnonymousToPage("/Error");
     options.Conventions.AllowAnonymousToPage("/Privacy");
