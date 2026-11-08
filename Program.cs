@@ -6,16 +6,19 @@ using StockSmart.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Add services to the container.
 // Every page needs a logged-in user, except Login, Error and Privacy.
-// User management and product editing are for the Manager only (FR1.3, FR2.1, NFR1).
+// User management, product editing and supplier editing are for the Manager only (FR1.3, FR2.1, FR3, NFR1).
+// Reports are for the Owner and Manager (FR7, NFR1).
 builder.Services.AddRazorPages(options =>
 {
     options.Conventions.AuthorizeFolder("/");
     options.Conventions.AuthorizeFolder("/Users", "ManagerOnly");
     options.Conventions.AuthorizePage("/Products/Add", "ManagerOnly");    // FR2.1, NFR1
     options.Conventions.AuthorizePage("/Products/Edit", "ManagerOnly");   // FR2.1, NFR1
-    options.Conventions.AuthorizePage("/Suppliers/Add", "ManagerOnly");
-    options.Conventions.AuthorizePage("/Suppliers/Edit", "ManagerOnly");
+    options.Conventions.AuthorizePage("/Suppliers/Add", "ManagerOnly");   // FR3, NFR1
+    options.Conventions.AuthorizePage("/Suppliers/Edit", "ManagerOnly");  // FR3, NFR1
+    options.Conventions.AuthorizePage("/Reports", "OwnerOrManager");      // FR7, NFR1
     options.Conventions.AllowAnonymousToPage("/Login");
     options.Conventions.AllowAnonymousToPage("/Error");
     options.Conventions.AllowAnonymousToPage("/Privacy");
@@ -38,6 +41,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("ManagerOnly", policy => policy.RequireRole(UserRoles.Manager));
+    options.AddPolicy("OwnerOrManager", policy => policy.RequireRole(UserRoles.Owner, UserRoles.Manager));   // FR7
 });
 
 // Repositories: one new instance per web request.
@@ -45,6 +49,7 @@ builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<SupplierRepository>();
 builder.Services.AddScoped<ProductRepository>();
 builder.Services.AddScoped<SaleRepository>();
+
 // Services: business logic that sits between the pages and the repositories.
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<SaleService>();
