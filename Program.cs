@@ -53,7 +53,7 @@ builder.Services.AddScoped<SaleRepository>();
 // Services: business logic that sits between the pages and the repositories.
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<SaleService>();
-
+builder.Services.AddScoped<ReportRepository>();
 var app = builder.Build();
 
 // Create the StockSmart database, tables and sample data on first run (NFR5).
