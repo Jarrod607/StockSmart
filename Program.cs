@@ -7,7 +7,7 @@ using StockSmart.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-// Every page needs a logged-in user, except Login, Error and Privacy.
+// Every page needs a logged-in user, except Login and Error.
 // User management, product editing and supplier editing are for the Manager only (FR1.3, FR2.1, FR3, NFR1).
 // Reports are for the Owner and Manager (FR7, NFR1).
 builder.Services.AddRazorPages(options =>
@@ -21,7 +21,7 @@ builder.Services.AddRazorPages(options =>
     options.Conventions.AuthorizePage("/Reports", "OwnerOrManager");      // FR7, NFR1
     options.Conventions.AllowAnonymousToPage("/Login");
     options.Conventions.AllowAnonymousToPage("/Error");
-    options.Conventions.AllowAnonymousToPage("/Privacy");
+ 
 });
 
 // Cookie login (FR1.1): logged-out users go to /Login,

@@ -18,41 +18,43 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                                                          <ul class="navbar-nav flex-grow-1">
+                    <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-page="/Index">Home</a>
                         </li>
-                        @* Products: every logged-in user can view them (FR2). *@
+
                         @if (User.Identity?.IsAuthenticated == true)
                         {
+                            @* Every logged-in user: view products (FR2), record sales (FR4/FR5),
+                               view suppliers (FR3) and the low-stock list (FR6). *@
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-page="/Products/Index">Products</a>
                             </li>
                             <li class="nav-item">
-    <a class="nav-link text-dark" asp-page="/Sales/New">New Sale</a>
-</li>
-<li class="nav-item">
-    <a class="nav-link text-dark" asp-page="/Suppliers/Index">Suppliers</a>
-</li>
-   <li class="nav-item">
-       <a class="nav-link text-dark" asp-area="" asp-page="/LowStock">Low Stock</a>
-   </li>
-      @if (User.IsInRole("Owner") || User.IsInRole("Manager"))
-   {
-       <li class="nav-item">
-           <a class="nav-link text-dark" asp-area="" asp-page="/Reports">Reports</a>
-       </li>
-   }
-                        }
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
-                        </li>
-                        @* User management: only the Manager sees this link (FR1.3). *@
-                        @if (User.IsInRole("Manager"))
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-page="/Users/Index">Users</a>
+                                <a class="nav-link text-dark" asp-area="" asp-page="/Sales/New">New Sale</a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-page="/Suppliers/Index">Suppliers</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-page="/LowStock">Low Stock</a>
+                            </li>
+
+                            @* Reports: Owner and Manager only (FR7). *@
+                            @if (User.IsInRole("Owner") || User.IsInRole("Manager"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-page="/Reports">Reports</a>
+                                </li>
+                            }
+
+                            @* User management: Manager only (FR1.3). *@
+                            @if (User.IsInRole("Manager"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-page="/Users/Index">Users</a>
+                                </li>
+                            }
                         }
                     </ul>
                     <partial name="_LoginPartial" />
@@ -60,6 +62,7 @@
             </div>
         </nav>
     </header>
+
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()
@@ -68,7 +71,7 @@
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2026 - StockSmart - <a asp-area="" asp-page="/Privacy">Privacy</a>
+            &copy; 2026 - StockSmart
         </div>
     </footer>
 
