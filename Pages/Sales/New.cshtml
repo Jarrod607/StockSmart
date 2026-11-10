@@ -1,11 +1,11 @@
 @page
 @model StockSmart.Pages.Sales.NewModel
 @{
-    ViewData["Title"] = "New Sale";
+    ViewData["Title"] = "New sale";
     var errors = ViewData.ModelState[string.Empty]?.Errors;
 }
 
-<h1 class="h3 mb-3">New Sale</h1>
+<h1 class="h3 mb-3">New sale</h1>
 
 @if (Model.LastReceipt is { } receipt)
 {
