@@ -76,7 +76,8 @@
                             @foreach (var p in Model.Products)
                             {
                                 <option value="@p.ProductId"
-                                        data-price="@p.Price.ToString(System.Globalization.CultureInfo.InvariantCulture)">
+                                        data-price="@p.Price.ToString(System.Globalization.CultureInfo.InvariantCulture)"
+data-stock="@p.Quantity">
                                     @p.Name · @Model.Rand(p.Price) · @p.Quantity in stock
                                 </option>
                             }
@@ -84,6 +85,7 @@
                     </td>
                     <td>
                         <input asp-for="Lines[i].Quantity" type="number" min="1" class="form-control line-qty" />
+                        <div class="invalid-feedback line-stock-msg"></div>
                     </td>
                     <td class="text-end line-total">@Model.Rand(Model.LineTotal(Model.Lines[i]))</td>
                     <td>
@@ -110,7 +112,7 @@
 
 @section Scripts {
     <script>
-        // Live running total (display only; the server recalculates on save).
+        // Live running total and over-stock warning (display only; the server recalculates and checks stock on save).
         (function () {
             const table = document.getElementById('sale-lines');
             const money = n => 'R' + n.toFixed(2);
@@ -119,8 +121,18 @@
                 let total = 0;
                 table.querySelectorAll('tbody tr').forEach(row => {
                     const option = row.querySelector('.line-product').selectedOptions[0];
+                    const qtyInput = row.querySelector('.line-qty');
+                    const msg = row.querySelector('.line-stock-msg');
                     const price = parseFloat(option?.dataset.price || '0');
-                    const qty = parseInt(row.querySelector('.line-qty').value, 10) || 0;
+                    const stock = parseInt(option?.dataset.stock ?? '', 10);
+                    const qty = parseInt(qtyInput.value, 10) || 0;
+
+                    // Over-stock warning (display only; the server still checks on save).
+                    const over = option && option.value !== '0' && !isNaN(stock) && qty > stock;
+                    row.classList.toggle('table-warning', over);
+                    qtyInput.classList.toggle('is-invalid', over);
+                    if (msg) msg.textContent = over ? `Only ${stock} in stock` : '';
+
                     const line = price * qty;
                     row.querySelector('.line-total').textContent = money(line);
                     total += line;
@@ -135,6 +147,8 @@
             table.addEventListener('keydown', e => {
                 if (e.key === 'Enter') { e.preventDefault(); recalc(); }
             });
+
+            recalc(); // highlight on page load too (e.g. after Add line)
         })();
     </script>
 }
